@@ -1,0 +1,60 @@
+var express = require('express');  
+var app = express();  
+var server = require('http').createServer(app);  
+var io = require('socket.io')(server);
+const apiai = require('apiai')('b6c8154f6c6a480c85cd8324b4c2c38d');
+
+app.use(express.static(__dirname + '/node_modules'));  
+app.use(express.static(__dirname + '/public'));
+app.get('/', function(req, res,next) {  
+    res.sendFile(__dirname + '/index.html');
+});
+
+io.on('connection', function(client) {  
+    // console.log('Client connected...');
+
+    client.on('join', function(data) {
+        // console.log(data);
+		client.emit('messages', 'Hello from server');
+    });
+	client.on('messages', function(data) {
+           // console.log('Message from client:: ',data);
+		   requestAI(data, function (response) {
+		   	// console.log('I got you back:',response);
+		   	client.emit('broad', response);
+		   });
+    });
+
+    client.on('voiceInput', function(data) {
+    	// console.log('Received a voice message from client:',data);
+    	requestAI(data,function (response) {
+	   		// console.log('I got you back:',response);
+	   		client.emit('broad', response);
+		});
+    	// console.log('AI Response is :',requestAI(data));
+    });
+});
+
+function requestAI (input, somefunction) {
+	// console.log('Requesting response from AI');
+	let apiaiReq = apiai.textRequest(input, {
+	  sessionId: 'b6c8154f6c6a480c85cd8324b4c2c38d'
+	});
+
+	apiaiReq.on('response', (response) => {
+	  let aiText = response.result.fulfillment.speech;
+	  // console.log('AI Response is(requestAI) :: ',aiText);
+	  somefunction(aiText);
+	});
+
+	apiaiReq.on('error', (error) => {
+	  // console.log('Error from server ::',error);
+	  somefunction('Error from AI engine');
+	});
+
+	apiaiReq.end();
+};
+
+server.listen(80, function(){
+	console.log('Server is running on port 4200');
+}); 

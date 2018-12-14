@@ -1,0 +1,18 @@
+{
+  "name": "socket-ai",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "apiai": "^4.0.3",
+    "express": "^4.16.3",
+    "express-livereload": "0.0.24",
+    "jquery": "^3.3.1",
+    "socket.io": "^2.1.1"
+  }
+}

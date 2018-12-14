@@ -1,0 +1,41 @@
+
+box: node
+build:
+  steps:
+    - script:
+        name: echo nodejs information
+        code: |
+          echo "node version $(node -v) running"
+          echo "npm version $(npm -v) running"
+          npm install
+push-to-release:
+  steps:
+      - internal/docker-push:
+        username: $DOCKER_USERNAME
+        password: $DOCKER_PASSWORD
+        tag: $WERCKER_GIT_BRANCH-$WERCKER_GIT_COMMIT
+        repository: $DOCKER_REPO
+        cmd: node index.js
+        ports: "80"
+        working-dir: /pipeline/source
+deploy-to-oke:
+  box:
+     id: alpine
+     cmd: /bin/sh
+  steps:
+
+  - bash-template
+  - kubectl:
+    name: "Deploy New Image"
+    insecure-skip-tls-verify: true
+    command: delete deploy,svc -l app=ciaidemo -n ciaidemo
+  - kubectl:
+    name: "Deploy New Image"
+    insecure-skip-tls-verify: true
+    command: create -f $WERCKER_ROOT/kube-dev.yml -n ciaidemo
+  - script:
+      name: echo paths
+      code: |
+        pwd
+        ls -ltr
+        echo $WERCKER_ROOT

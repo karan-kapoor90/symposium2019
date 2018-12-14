@@ -1,0 +1,48 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: ciaidemo
+  labels:
+    app: ciaidemo
+    commit: ${WERCKER_GIT_COMMIT}
+  namespace: ciaidemo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ciaidemo
+      commit: ${WERCKER_GIT_COMMIT}
+  template:
+    metadata:
+      labels:
+        app: ciaidemo
+        commit: ${WERCKER_GIT_COMMIT}
+        color: green
+    spec:
+      containers:
+      - name: ciaidemo
+        image: ${DOCKER_REPO}:${WERCKER_GIT_BRANCH}-${WERCKER_GIT_COMMIT}
+        imagePullPolicy: Always
+        ports:
+        - name: ciaidemo-port
+          containerPort: 80
+          protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ciaidemo-service
+  labels:
+    app: ciaidemo
+    commit: ${WERCKER_GIT_COMMIT}
+  namespace: ciaidemo
+spec:
+  ports:
+  - port: 32299
+    targetPort: 80
+    nodePort: 32700
+  selector:
+    app: ciaidemo
+    color: green
+  type: NodePort
+---
