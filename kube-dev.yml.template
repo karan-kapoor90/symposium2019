@@ -1,48 +1,48 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: ciaidemo
+  name: symposium
   labels:
-    app: ciaidemo
+    app: symposium
     commit: ${WERCKER_GIT_COMMIT}
-  namespace: ciaidemo
+  namespace: symposium
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: ciaidemo
+      app: symposium
       commit: ${WERCKER_GIT_COMMIT}
   template:
     metadata:
       labels:
-        app: ciaidemo
+        app: symposium
         commit: ${WERCKER_GIT_COMMIT}
         color: green
     spec:
       containers:
-      - name: ciaidemo
+      - name: symposium
         image: ${DOCKER_REPO}:${WERCKER_GIT_BRANCH}-${WERCKER_GIT_COMMIT}
         imagePullPolicy: Always
         ports:
-        - name: ciaidemo-port
+        - name: symposium-port
           containerPort: 80
           protocol: TCP
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: ciaidemo-service
+  name: symposium-service
   labels:
-    app: ciaidemo
+    app: symposium
     commit: ${WERCKER_GIT_COMMIT}
-  namespace: ciaidemo
+  namespace: symposium
 spec:
   ports:
   - port: 32299
     targetPort: 80
     nodePort: 32700
   selector:
-    app: ciaidemo
+    app: symposium
     color: green
   type: NodePort
 ---
